@@ -8,19 +8,22 @@
 # September 2020
 #-----------------------------------------------------------------------------------
 
-# Written by Maxime FILY, UGA
-# NOANOA Project 2020
+# Written by Maxime FILY, Université Grenoble Alpes
+# Project : Pangloss
+#
 
 # Instruction
-# 1- before launching, please make sure that the work directory is correct (dirNAME)
-# 2- the textGRID has to be entered WITHOUT the extension for variables consistency
-# 3- ideally, the textgrid and audio file bear the same name. If not, you may have to change the file name in HEADER
-# 4- the linguistic input originate from one file : the TextGrid ;
-#           * the Textgrid file requires x tiers (numitem, surface phonol, gloss, and comment),
+# 1- before launching, please make sure that your input is in one directory only
+# 2- Enter the work directory (where the inputs are)
+# 3- Enter the .TextGrid name WITHOUT the extension for variables consistency
+# 3- The programm assumes that textgrid and audio files bear the same name. If not, you have to change the file name in the output HEADER
+# 4- the linguistic input originate from one file : the .TextGrid ;
+#           * the .Textgrid file requires 3 tiers (numitem, surface phonol, gloss),
 #           but it can accept other tiers, such as phonetic, ENGLISH, FRENCH, CHINESE, tone pattern
 #           * numitem formats are imposed : start with d (decimal), plus (optionally) "_" followed 
 #           with any number of ASCII characters
-# 5- the xml in output shall be viewed using the view_text.xsl stylesheet
+# 5- the xml in the output does not contain any markup as to which viewing option is assumed because it depends on the formalism of the destination website
+# and should therefore be added by the Pangloss team (the two first lines of an xml, usually).
 
 import sys
 import textgrids
@@ -180,7 +183,10 @@ out.write('" />\n')
 out.write('\t</HEADER>\n')
 
 
-#Donnees linguistiques balisees
+#Tier identification for the program. The markers for tier_name are hardcoded on this version
+#For customization, the user may change the tier names below to match his/her TextGrid_file
+#USER MODIFICATION START
+###################################################################################################
 grid = textgrids.TextGrid(grd)
 grid.tier_to_csv('numitem', fcsv)
 try:
@@ -188,12 +194,28 @@ try:
 except: 
     pass
 grid.tier_to_csv('surface phonol', g1csv)
-grid.tier_to_csv('tone pattern', g2csv)
+try:
+    grid.tier_to_csv('tone pattern', g2csv)
+except: 
+    pass
 grid.tier_to_csv('gloss', g3csv)
-grid.tier_to_csv('CHINESE', hcsv)
-grid.tier_to_csv('ENGLISH', icsv)
-grid.tier_to_csv('FRENCH', jcsv)
-grid.tier_to_csv('comment', kcsv)
+try:
+    grid.tier_to_csv('CHINESE', hcsv)   #Or any language used for tier name
+except: 
+    pass
+try:
+    grid.tier_to_csv('ENGLISH', icsv)   #Or any language used for tier name
+except: 
+    pass
+try:
+    grid.tier_to_csv('FRENCH', jcsv)    #Or any language used for tier name
+except: 
+    pass
+try:
+    grid.tier_to_csv('comment', kcsv)   #I almost made this tier obligatory but changed my mind.
+except: 
+    pass
+#USER MODISFICATION FINISH
 
 fich_exploit = open(fcsv, encoding="utf8")
 fich_lu = csv.reader(fich_exploit, delimiter = ';')
@@ -232,21 +254,19 @@ fich_lu = csv.reader(fich_exploit, delimiter = ';')
 liste_Comm = list(fich_lu)
 fich_exploit.close()
 
-#print("test affichage")
-#print(str(len(liste_numitem)) + ";" + str(len(liste_Na0)) + ";" + str(len(liste_Na2)) + ";" + str(len(liste_Na1)) + ";" + str(len(liste_Na3)) + ";" + str(len(liste_CH)) + ";" + str(len(liste_EN)) + ";" + str(len(liste_CH)) + ";" + str(len(liste_FR)) + ";" + str(len(liste_Comm)) + "\n")
 
 if (((len(liste_Na0) - len(liste_numitem)) == 0) or ((len(liste_Na0) == 0))) and ((len(liste_Na1) - len(liste_numitem)) == 0) and ((len(liste_Na2) - len(liste_numitem)) == 0) and ((len(liste_Na3) - len(liste_numitem)) == 0) and ((len(liste_CH) - len(liste_numitem)) == 0) and ((len(liste_EN) - len(liste_numitem)) == 0) and ((len(liste_FR) - len(liste_numitem)) == 0) and ((len(liste_Comm) - len(liste_numitem)) == 0) :
 
     for k in range(len(liste_numitem)):
-       # print("numitem : " + liste_numitem[k][0])
         try:
-            indice_textgrid = int(re.sub("_\w*","",liste_numitem[k][0]))
+            indice_textgrid = int(liste_numitem[k][0].split("_")[0])
         except ValueError:
             indice_textgrid = 0
         if indice_textgrid != 0:
             out.write('\t<S id="S')
             out.write(str(liste_numitem[k][0]))
             out.write('">\n')
+#required tiers
             out.write('\t\t<NOTE xml:lang="en" message="UID = ')
             out.write(str(liste_numitem[k][0]))
             out.write('"/>\n')
@@ -258,25 +278,32 @@ if (((len(liste_Na0) - len(liste_numitem)) == 0) or ((len(liste_Na0) == 0))) and
             out.write('\t\t<FORM kindOf="phono">')
             out.write(str(liste_Na1[k][0]))
             out.write('</FORM>\n')            
-            out.write('\t\t<NOTE kindOf="phone">')
-            try :
+#optional tiers
+            if (len(liste_Na0)) != 0:
+                out.write('\t\t<NOTE xml:lang="Fcit" message="')
                 out.write(str(liste_Na0[k][0]))
-            except IndexError:
-                out.write("")
-            out.write('</NOTE>\n')            
-            out.write('\t\t<NOTE kindOf="tone">')
-            out.write(str(liste_Na2[k][0]))
-            out.write('</NOTE>\n')            
-            out.write('\t\t<TRANSL xml:lang="zh">')
-            out.write(str(liste_CH[k][0]))
-            out.write('</TRANSL>\n')
-            out.write('\t\t<TRANSL xml:lang="en">')
-            out.write(str(liste_EN[k][0]))
-            out.write('</TRANSL>\n')
-            out.write('\t\t<TRANSL xml:lang="fr">')
-            out.write(str(liste_FR[k][0]))
-            out.write('</TRANSL>\n')
-#start writing at word level
+                out.write('"/>\n')
+            if (len(liste_Na2)) != 0:
+                out.write('\t\t<NOTE xml:lang="tone" message="')
+                out.write(str(liste_Na2[k][0]))
+                out.write('"/>\n')            
+            if (len(liste_Na2)) != 0:
+                out.write('\t\t<TRANSL xml:lang="zh">')
+                out.write(str(liste_CH[k][0]))
+                out.write('</TRANSL>\n')
+            if (len(liste_Na2)) != 0:
+                out.write('\t\t<TRANSL xml:lang="en">')
+                out.write(str(liste_EN[k][0]))
+                out.write('</TRANSL>\n')
+            if (len(liste_Na2)) != 0:
+                out.write('\t\t<TRANSL xml:lang="fr">')
+                out.write(str(liste_FR[k][0]))
+                out.write('</TRANSL>\n')
+            if (len(liste_Comm)) != 0:
+                out.write('\t\t<NOTE xml:lang="comm" message="')
+                out.write(str(liste_Comm[k][0]))
+                out.write('"/>\n')
+            #start writing at word level (required tier)
             sentence = str(liste_Na1[k][0])
             wordliste = sentence.split()
             gloss = str(liste_Na3[k][0])

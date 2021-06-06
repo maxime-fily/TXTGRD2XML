@@ -12,18 +12,20 @@
 # NOANOA Project 2020
 
 # Instruction
-# 1- before launching, please make sure that the work directory is correct (dirNAME)
-# 2- the textGRID has to be entered WITHOUT the extension for variables consistency
-# 3- ideally, the textgrid and audio file bear the same name. If not, you may have to change the file 
-#    name in HEADER
-# 4- the linguistic input originate from 2 files with the SAME name :
+# 1- before launching, please make sure that your input is in one directory only
+# 2- Enter the work directory (where the inputs are)
+# 3- Enter the .TextGrid name WITHOUT the extension for variables consistency
+# 4- The programm assumes that textgrid and audio files bear the same name. If not, you have to change the file name in the output HEADER
+
+# 5- the linguistic input originate from 2 files with the SAME name :
 #     - my_file.txt (translations, gloses, etc.)
 #     - my_file.TextGrid ; see below
 #               * the Textgrid file requires two tiers (numitem and comment),
 #               but it can accept other tiers, although they will simply be ignored
 #               * numitem formats are imposed : start with d (decimal), plus (optionally) "_" followed 
 #               with any number of ASCII characters
-# 5 - the xml in output shall be viewed using the view_text.xsl stylesheet
+# 6- the xml in the output does not contain any markup as to which viewing option is assumed because it depends on the formalism of the destination website
+# and should therefore be added by the Pangloss team (the two first lines of an xml, usually).
 
 
 import sys
@@ -103,6 +105,7 @@ os.chdir(dirNAME)
 fcsv = textGRD + "_tsp.csv"
 outNAME = textGRD + '.xml'
 metaNAME = textGRD + "_metadata.txt"
+print("the data generated through standard input are recorded in " + metaNAME )
 
 
 #ménage
@@ -181,18 +184,14 @@ for j in range(len(tabLIST[:][0])):
         ind_EN = j
     if tabLIST[0][j] == "CH":
         ind_CH = j
-    if tabLIST[0][j] == "NA SK Phonol":
+    if tabLIST[0][j] == "Phonol":
         ind_NAC = j
-    if tabLIST[0][j] == "NA SK Fcit":
+    if tabLIST[0][j] == "Fcit":
         ind_NAF = j
-    if tabLIST[0][j] == "Syll_1":
-        ind_sigma1 = j
-    if tabLIST[0][j] == "Syll_2":
-        ind_sigma2 = j
-    if tabLIST[0][j] == "Syll_3":
-        ind_sigma3 = j
-    if tabLIST[0][j] == "Syll_4":
-        ind_sigma4 = j
+    if tabLIST[0][j] == "OTHER_Phonol":
+        ind_OTC = j
+    if tabLIST[0][j] == "OTHER_Fcit":
+        ind_OTF = j
     if tabLIST[0][j] == "Renvois":
         ind_renvois = j
     if tabLIST[0][j] == "Commentaire":
@@ -201,27 +200,48 @@ for j in range(len(tabLIST[:][0])):
 for i in range(1,len(tabLIST)):
     try:
         numitem = int(tabLIST[i][ind_item])
+    except (NameError, IndexError) as e:
+        pass
+    try:
         FRtrad = tabLIST[i][ind_FR]
+    except (NameError, IndexError) as e:
+        pass
+    try:
         ENtrad = tabLIST[i][ind_EN]
+    except (NameError, IndexError) as e:
+        pass
+    try:
         CHtrad = tabLIST[i][ind_CH]
-        NACword = tabLIST[i][ind_NAC]
+    except (NameError, IndexError) as e:
+        pass
+    try:
         NAFword = tabLIST[i][ind_NAF]
-        sigma1 = tabLIST[i][ind_sigma1]
-        sigma2 = tabLIST[i][ind_sigma2]
-        sigma3 = tabLIST[i][ind_sigma3]
-        sigma4 = tabLIST[i][ind_sigma4]
+    except (NameError, IndexError) as e:
+        pass
+    try:
+        OTCword = tabLIST[i][ind_OTC]
+    except (NameError, IndexError) as e:
+        pass
+    try:
+        OTFword = tabLIST[i][ind_OTF]
+    except (NameError, IndexError) as e:
+        pass
+    try:
         renvoi = tabLIST[i][ind_renvois]
+    except (NameError, IndexError) as e:
+        pass
+    try:
         comm = tabLIST[i][ind_comm]
-    except NameError:
+    except (NameError, IndexError) as e:
         pass
     for k in range(len(liste_lue)):
         try:
-            indice_textgrid = int(re.sub("_\w*","",liste_lue[k][0]))
+            indice_textgrid = int(liste_lue[k][0].split("_")[0])
         except ValueError:
             indice_textgrid = 0
         if (indice_textgrid - numitem) == 0:
             out.write('\t\t<W id="item#')
-            out.write(str(liste_lue[k][0]))
+            out.write(str(liste_lue[k][0])) 
             out.write('">\n')
             out.write('\t\t\t<AUDIO start="')
             out.write(str(liste_lue[k][1]))
@@ -229,20 +249,41 @@ for i in range(1,len(tabLIST)):
             out.write(str(liste_lue[k][2]))
             out.write('" />\n')
             out.write("\t\t\t<FORM kindOf='phono'>")
-            out.write(str(NAFword))
+            try:
+                out.write(str(NAFword))
+            except:
+                pass
             out.write('</FORM>\n')
-            out.write("\t\t\t<FORM kindOf='isol'>")
-            out.write(str(NACword))
-            out.write('</FORM>\n')
+            out.write('\t\t\t<NOTE xml:lang="Fcit" message="')
+            try:
+                out.write(str(NACword))
+            except:
+                pass
+            out.write('"/>\n')
             out.write('\t\t\t<TRANSL xml:lang="fr">')
-            out.write(str(FRtrad))
+            try:
+                out.write(str(FRtrad))
+            except:
+                pass
             out.write('</TRANSL>\n')
             out.write('\t\t\t<TRANSL xml:lang="zh">')
-            out.write(str(CHtrad))
+            try:
+                out.write(str(CHtrad))
+            except:
+                pass
             out.write('</TRANSL>\n')
             out.write('\t\t\t<TRANSL xml:lang="en">')
-            out.write(str(ENtrad))
+            try:
+                out.write(str(ENtrad))
+            except:
+                pass
             out.write('</TRANSL>\n')
+            out.write('\t\t\t<NOTE xml:lang="Fcit" message="')
+            try:
+                out.write(str(comm))
+            except:
+                pass
+            out.write('"/>\n')
             out.write('\t\t</W>\n')
 out.write('</WORDLIST>\n')
 out.close()

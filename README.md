@@ -1,6 +1,6 @@
 # TXTGRD2XML
 WARNING : the package Praat-textgrids v1.4 or later is required for this scripts : \
-https://github.com/Legisign/Praat-textgrids\
+https://github.com/Legisign/Praat-textgrids\, by @Legisign
 
 These are Python scripts dedicated to converting textgrids into xml files for Pangloss (https://pangloss.cnrs.fr/).\
 There are two different scripts dedicated to the work of linguists:\
@@ -39,3 +39,10 @@ If not, you have to change the file name in the output HEADER\
            * numitem formats are imposed : start with d (decimal), plus (optionally) "_" followed
            with any number of ASCII characters\
  5- the xml in the output does not contain any markup as to which viewing option is assumed because it depends on the formalism of the destination website and should therefore be added by the Pangloss team (the two first lines of an xml, usually).\
+
+# Copyright
+Copyright © 2020–21 Maxime Fily maxime.fily@gmail.com
+
+This program is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.

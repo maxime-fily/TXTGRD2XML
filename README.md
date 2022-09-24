@@ -14,6 +14,7 @@ I) WORD LISTS (`TXTGRD2XML_input-txt.py`)
      Instructions
  1- before launching, please make sure that your input is in one directory only
  2- Enter the work directory (where the inputs are)
+ 
  3- Enter the .TextGrid name WITHOUT the extension for variables consistency
  4- The programm assumes that textgrid and audio files bear the same name. If not, you have to change the file name in the output HEADER
  5- the linguistic input originate from 2 files with the SAME name :
